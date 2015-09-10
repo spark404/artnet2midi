@@ -1,6 +1,8 @@
 package net.strocamp;
 
 import net.strocamp.artnet.ArtNetNode;
+import net.strocamp.artnet.DmxHandler;
+import net.strocamp.artnet.DmxHandlerInfo;
 import net.strocamp.artnet.util.Utils;
 import net.strocamp.midi.MidiSender;
 
@@ -30,6 +32,28 @@ public class App
         if (midiSender == null) {
            throw  new Exception("Failed to find a midisender");
         }
+
+        final MidiSender target = midiSender;
+
+        DmxHandler midiTriggerHandler = new DmxHandler() {
+            private byte lastValue;
+
+            @Override
+            public void handle(byte[] data) {
+                byte channel_1 = data[0];
+                if (channel_1 != lastValue) {
+                    lastValue = channel_1;
+                    if (channel_1 == -1) {
+                        try {
+                            target.sendTrigger(1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+        };
 
         NetworkInterface artNetInterface = null;
         InterfaceAddress artNetInterfaceAddress = null;
@@ -65,7 +89,7 @@ public class App
             public void run() {
 
                 try {
-                    artNetNode.handler(destination);
+                    artNetNode.handler();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,6 +100,8 @@ public class App
         Thread artNetThread = new Thread(artNetRunner);
         artNetThread.setDaemon(true);
         artNetThread.start();
+
+        artNetNode.addHandler(new DmxHandlerInfo("midiTrigger", 7, 0, 1), midiTriggerHandler);
 
         artNetThread.join();
     }

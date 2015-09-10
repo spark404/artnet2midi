@@ -17,7 +17,7 @@ public class MidiSender {
 
     public void sendTrigger(int trigger) throws Exception {
         System.out.println("Sending trigger to " + trigger);
-        MidiMessage midiMessage = new ShortMessage(ShortMessage.CONTROL_CHANGE, 1, 0,0);
+        MidiMessage midiMessage = new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, trigger - 1,0);
         receiver.send(midiMessage, -1);
 
     }
