@@ -36,11 +36,7 @@ public class ArtNetNode {
             artNetSocket.receive(receivePacket);
             ArtNetPacket artNetPacket = ArtNetPacket.parseRawPacket(receiveData);
 
-            if (!artNetPacket.isValid() && artNetPacket.getOpCode() != 0x5000) {
-                continue;
-            }
-
-            if (artNetPacket.getUniverse() != 7 && artNetPacket instanceof ArtNetDmxPacket) {
+            if (!artNetPacket.isValid() || artNetPacket.getOpCode() != 0x5000) {
                 continue;
             }
 
@@ -58,8 +54,6 @@ public class ArtNetNode {
 
                 // TODO length checking
                 byte[] dataPart = Arrays.copyOfRange(dmxPacket.getDmxData(), startPosition, startPosition + length);
-                System.out.println("Handler found, sending data for address " + info.getAddress() +
-                        " to handler " + info.getName());
                 handlerEntry.getValue().handle(dataPart);
             }
         }

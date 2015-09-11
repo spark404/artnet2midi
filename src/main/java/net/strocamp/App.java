@@ -36,16 +36,27 @@ public class App
         final MidiSender target = midiSender;
 
         DmxHandler midiTriggerHandler = new DmxHandler() {
-            private byte lastValue;
+            private byte[] lastValue = { -1, -1};
 
             @Override
             public void handle(byte[] data) {
                 byte channel_1 = data[0];
-                if (channel_1 != lastValue) {
-                    lastValue = channel_1;
+                if (channel_1 != lastValue[0]) {
+                    lastValue[0] = channel_1;
                     if (channel_1 == -1) {
                         try {
                             target.sendTrigger(1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                byte channel_2 = data[1];
+                if (channel_2 != lastValue[1]) {
+                    lastValue[1] = channel_2;
+                    if (channel_2 == -1) {
+                        try {
+                            target.sendTrigger(2);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -101,7 +112,7 @@ public class App
         artNetThread.setDaemon(true);
         artNetThread.start();
 
-        artNetNode.addHandler(new DmxHandlerInfo("midiTrigger", 7, 0, 1), midiTriggerHandler);
+        artNetNode.addHandler(new DmxHandlerInfo("midiTrigger", 7, 0, 2), midiTriggerHandler);
 
         artNetThread.join();
     }
