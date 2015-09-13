@@ -8,11 +8,9 @@ import net.strocamp.midi.MidiSender;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
-import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 
@@ -20,6 +18,15 @@ public class App
 {
     public static void main( String[] args ) throws Exception
     {
+        // Embedded jetty
+        new Thread() {
+            @Override
+            public void run() {
+                JettyManager jettyManager = new JettyManager();
+                jettyManager.startServer(8089);
+            }
+        }.start();
+
         MidiSender midiSender = null;
         MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : midiDeviceInfo) {
@@ -30,7 +37,7 @@ public class App
         }
 
         if (midiSender == null) {
-           throw  new Exception("Failed to find a midisender");
+           throw new Exception("Failed to find a midisender");
         }
 
         final MidiSender target = midiSender;
@@ -86,6 +93,12 @@ public class App
                     break;
                 }
             }
+        }
+
+        if (artNetInterface == null) {
+            // DEBUG
+            artNetInterface = NetworkInterface.getByName("en0");
+            artNetInterfaceAddress = artNetInterface.getInterfaceAddresses().get(0);
         }
 
         if (artNetInterface == null) {

@@ -1,8 +1,10 @@
-package net.strocamp.artnet;
+package net.strocamp.artnet.packets;
+
+import net.strocamp.artnet.ArtNetException;
 
 import java.util.Arrays;
 
-public class ArtNetPacket {
+public abstract class ArtNetPacket {
     private static final byte[] ARTNET_ID = { 'A', 'r', 't', '-', 'N', 'e', 't', 0x0};
     private final byte[] rawData;
 
@@ -16,10 +18,11 @@ public class ArtNetPacket {
             throw new ArtNetException("Invalid magic string");
         }
         int opCode = (rawData[9] << 8) + rawData[8];
-        if (opCode == ArtNetDmxPacket.ARTNET_OPCODE_DMX512) {
-            return new ArtNetDmxPacket(rawData.clone());
+        if (opCode == ArtDmx.ARTNET_OPCODE_DMX512) {
+            return new ArtDmx(rawData.clone());
         } else {
-            return new ArtNetPacket(rawData.clone());
+            System.out.println("Unsupported OpCode " + opCode);
+            return null;
         }
     }
 

@@ -1,14 +1,16 @@
-package net.strocamp.artnet;
+package net.strocamp.artnet.packets;
+
+import net.strocamp.artnet.ArtNetException;
 
 import java.util.Arrays;
 
-public class ArtNetDmxPacket extends ArtNetPacket {
+public class ArtDmx extends ArtNetPacket {
 
     public static final int ARTNET_OPCODE_DMX512 = 0x5000;
     private byte[] dmxData;
     private int dmxLength;
 
-    protected ArtNetDmxPacket(byte[] rawData) throws ArtNetException {
+    protected ArtDmx(byte[] rawData) throws ArtNetException {
         super(rawData);
         if (getOpCode() != ARTNET_OPCODE_DMX512) {
             throw new ArtNetException("Not a valid DMX ArtNetPackage");

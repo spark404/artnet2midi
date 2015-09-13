@@ -1,6 +1,7 @@
 package net.strocamp.artnet;
 
-import net.strocamp.midi.MidiSender;
+import net.strocamp.artnet.packets.ArtDmx;
+import net.strocamp.artnet.packets.ArtNetPacket;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -36,11 +37,11 @@ public class ArtNetNode {
             artNetSocket.receive(receivePacket);
             ArtNetPacket artNetPacket = ArtNetPacket.parseRawPacket(receiveData);
 
-            if (!artNetPacket.isValid() || artNetPacket.getOpCode() != 0x5000) {
+            if (artNetPacket == null || !artNetPacket.isValid() || artNetPacket.getOpCode() != 0x5000) {
                 continue;
             }
 
-            ArtNetDmxPacket dmxPacket = (ArtNetDmxPacket)artNetPacket;
+            ArtDmx dmxPacket = (ArtDmx)artNetPacket;
 
             for (Map.Entry<DmxHandlerInfo, DmxHandler> handlerEntry: handlers.entrySet()) {
                 DmxHandlerInfo info = handlerEntry.getKey();
