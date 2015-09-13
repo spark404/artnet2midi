@@ -35,7 +35,7 @@ public class App
         MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : midiDeviceInfo) {
             logger.debug("Found MIDI device {}", info.getName());
-            if (info.getName().equals("QLab")) {
+            if (info.getName().equals("Gervill")) {
                 midiSender = new MidiSender(info);
                 break;
             }
