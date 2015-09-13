@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
+import java.net.Inet4Address;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
@@ -35,7 +36,7 @@ public class App
         MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : midiDeviceInfo) {
             logger.debug("Found MIDI device {}", info.getName());
-            if (info.getName().equals("Gervill")) {
+            if (info.getName().equals("QLab")) {
                 midiSender = new MidiSender(info);
                 break;
             }
@@ -106,7 +107,12 @@ public class App
             if (artNetInterface == null) {
                 artNetInterface = NetworkInterface.getByName("wlan0");
             }
-            artNetInterfaceAddress = artNetInterface.getInterfaceAddresses().get(0);
+            for (InterfaceAddress interfaceAddress : artNetInterface.getInterfaceAddresses()) {
+                if (interfaceAddress.getAddress() instanceof Inet4Address) {
+                    artNetInterfaceAddress = interfaceAddress;
+                    break;
+                }
+            }
         }
 
         if (artNetInterface == null) {

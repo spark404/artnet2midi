@@ -7,21 +7,29 @@ import java.util.Arrays;
 
 public class ArtDmx extends ArtNetPacket {
 
+    public static final int DMX_LENGTH_OFFSET = 16;
+    public static final int DMX_DATA_OFFSET = 18;
     private byte[] dmxData;
     private int dmxLength;
 
-    protected ArtDmx(byte[] rawData) throws ArtNetException {
-        super(rawData);
-        this.opCode = ArtNetOpCodes.OpDmx;
-        dmxLength = rawData[16] + (rawData[17] << 8);
-        dmxData = Arrays.copyOfRange(rawData, 18, 18 + dmxLength);
+    public ArtDmx() {
+        super(ArtNetOpCodes.OpDmx);
+    }
+
+    @Override
+    public ArtNetPacket parse(byte[] data) {
+        setData(data);
+        return this;
     }
 
     public byte[] getDmxData() {
-        return dmxData;
+        byte[] data = getData();
+        int dmxLength = readIntMsb(data, DMX_LENGTH_OFFSET);
+        return Arrays.copyOfRange(data, DMX_DATA_OFFSET, DMX_DATA_OFFSET + dmxLength);
     }
 
     public int getDmxLength() {
-        return dmxLength;
+        byte[] data = getData();
+        return readIntMsb(data, DMX_LENGTH_OFFSET);
     }
 }
