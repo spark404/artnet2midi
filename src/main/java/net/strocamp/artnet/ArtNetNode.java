@@ -29,7 +29,8 @@ public class ArtNetNode {
     }
 
     public void handler() throws Exception {
-        DatagramSocket artNetSocket = new DatagramSocket(6454, interfaceAddress.getBroadcast());
+        DatagramSocket artNetSocket = new DatagramSocket(6454, interfaceAddress.getAddress());
+        artNetSocket.setBroadcast(true);
         byte[] receiveData = new byte[1024];
 
         while (true) {
