@@ -5,6 +5,8 @@ import net.strocamp.artnet.DmxHandler;
 import net.strocamp.artnet.DmxHandlerInfo;
 import net.strocamp.artnet.util.Utils;
 import net.strocamp.midi.MidiSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
@@ -16,6 +18,8 @@ import java.util.Enumeration;
 
 public class App
 {
+    private final static Logger logger = LoggerFactory.getLogger(App.class);
+
     public static void main( String[] args ) throws Exception
     {
         // Embedded jetty
@@ -30,6 +34,7 @@ public class App
         MidiSender midiSender = null;
         MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : midiDeviceInfo) {
+            logger.debug("Found MIDI device {}", info.getName());
             if (info.getName().equals("QLab")) {
                 midiSender = new MidiSender(info);
                 break;
@@ -84,7 +89,7 @@ public class App
             }
             byte[] macAddress= networkInterface.getHardwareAddress();
             byte[] artnetAddr = Utils.calculateArtNetAddress(macAddress, Utils.OOM_CODE, false);
-            System.out.println("Trying address " + printableAddress(artnetAddr) + " on " + networkInterface.getDisplayName());
+            logger.debug("Trying address " + printableAddress(artnetAddr) + " on " + networkInterface.getDisplayName());
 
             for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
                 if (Arrays.equals(artnetAddr, interfaceAddress.getAddress().getAddress())) {
@@ -105,7 +110,7 @@ public class App
             throw new Exception("No interface found with the correct IP");
         }
 
-        System.out.println("Starting an ArtNet node on " + artNetInterface.getDisplayName());
+        logger.debug("Starting an ArtNet node on " + artNetInterface.getDisplayName());
         final MidiSender destination = midiSender;
         final ArtNetNode artNetNode = new ArtNetNode(artNetInterface, artNetInterfaceAddress);
         Runnable artNetRunner = new Runnable() {

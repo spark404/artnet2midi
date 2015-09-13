@@ -37,7 +37,7 @@ public class ArtNetNode {
             artNetSocket.receive(receivePacket);
             ArtNetPacket artNetPacket = ArtNetPacket.parseRawPacket(receiveData);
 
-            if (artNetPacket == null || !artNetPacket.isValid() || artNetPacket.getOpCode() != 0x5000) {
+            if (artNetPacket == null || !artNetPacket.isValid() || artNetPacket.getOpCode() != ArtNetOpCodes.OpDmx) {
                 continue;
             }
 

@@ -11,4 +11,8 @@ public enum ArtNetOpCodes {
     ArtNetOpCodes(int opCode) {
         this.opCode = opCode;
     }
+
+    public int getOpCode() {
+        return opCode;
+    }
 }
