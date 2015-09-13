@@ -103,6 +103,9 @@ public class App
         if (artNetInterface == null) {
             // DEBUG
             artNetInterface = NetworkInterface.getByName("en0");
+            if (artNetInterface == null) {
+                artNetInterface = NetworkInterface.getByName("wlan0");
+            }
             artNetInterfaceAddress = artNetInterface.getInterfaceAddresses().get(0);
         }
 
