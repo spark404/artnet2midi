@@ -14,8 +14,16 @@
         <level value="WARN"/>
     </logger>
 
+    <logger name="org.springframework.web.servlet">
+        <level value="TRACE" />
+    </logger>
+
     <logger name="org.eclipse.jetty">
-        <level value="WARN"/>
+        <level value="INFO"/>
+    </logger>
+
+    <logger name="org.apache.jasper">
+        <level value="DEBUG"/>
     </logger>
 
     <root>

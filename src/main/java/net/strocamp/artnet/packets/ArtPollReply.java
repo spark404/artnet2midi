@@ -68,7 +68,6 @@ public class ArtPollReply extends ArtNetPacket {
         packetData[OFFSET_STYLE] = (byte)0x00;// stNode
 
         packetData[OFFSET_STATUS2] = (byte)0x08;
-
     }
 
     @Override
@@ -82,13 +81,27 @@ public class ArtPollReply extends ArtNetPacket {
         return this;
     }
 
-    public ArtPollReply setAddress(int net, int subnet, int universe) {
-        writeIntMsb(getData(), OFFSET_NETSWITCH, 0); // TODO figure out addressing
+    public ArtPollReply setNetSwitch(int net, int subnet) {
+        byte[] packetData = getData();
+        packetData[OFFSET_NETSWITCH] = (byte)(net & 0x7f); // Net 0 - 127
+        packetData[OFFSET_SUBNETSWITCH] = (byte)(net & 0x7); // Subnet 0 - 15
         return this;
     }
 
     public ArtPollReply setMacAddress(byte[] hwaddr) {
         System.arraycopy(hwaddr, 0, getData(), OFFSET_MACADDR, 6);
+        return this;
+    }
+
+    public ArtPollReply setUniverseForInputPort(int port, int universe) {
+        byte[] packetData = getData();
+        packetData[OFFSET_SWIN + port - 1] = (byte)(universe & 0x3); // Universe 0 - 7
+        return this;
+    }
+
+    public ArtPollReply setUniverseForOutputPort(int port, int universe) {
+        byte[] packetData = getData();
+        packetData[OFFSET_SWOUT + port - 1] = (byte)(universe & 0x3); // Universe 0 - 7
         return this;
     }
 
@@ -100,6 +113,5 @@ public class ArtPollReply extends ArtNetPacket {
 
         return new String(shortName, 0, i, Charset.forName("ASCII"));
     }
-
 
 }

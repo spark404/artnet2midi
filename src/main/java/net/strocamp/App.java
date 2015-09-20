@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Receiver;
+import javax.sound.midi.Sequencer;
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -35,8 +37,11 @@ public class App
         MidiSender midiSender = null;
         MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
         for (MidiDevice.Info info : midiDeviceInfo) {
-            logger.debug("Found MIDI device {}", info.getName());
-            if (info.getName().equals("QLab")) {
+            MidiDevice midiDevice = MidiSystem.getMidiDevice(info);
+            int transmitters = midiDevice.getMaxTransmitters();
+            int receivers = midiDevice.getMaxReceivers();
+            logger.debug("Found MIDI device {} with {} receivers and {} transmitters", info.getName(), receivers, transmitters);
+            if (info.getName().equals("ArtNet2Midi") && midiDevice.getMaxReceivers() == -1) {
                 midiSender = new MidiSender(info);
                 break;
             }

@@ -14,9 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ArtNetNode {
     private final static Logger logger = LoggerFactory.getLogger(ArtNetNode.class);
 
-    private static final byte[] ARTNET_ID = { 'A', 'r', 't', '-', 'N', 'e', 't', 0x0};
-    byte lastValue = 0x0;
-
     private Map<DmxHandlerInfo, DmxHandler> handlers;
 
     NetworkInterface networkInterface;
@@ -24,7 +21,7 @@ public class ArtNetNode {
 
 
     public ArtNetNode(NetworkInterface networkInterface, InterfaceAddress interfaceAddress) {
-        handlers = new ConcurrentHashMap<DmxHandlerInfo, DmxHandler>();
+        handlers = new ConcurrentHashMap<>();
         this.networkInterface = networkInterface;
         this.interfaceAddress = interfaceAddress;
     }
@@ -67,9 +64,10 @@ public class ArtNetNode {
     private DatagramPacket generateArtPollReply(DatagramSocket artNetSocket) throws ArtNetException, SocketException {
         ArtPollReply artPollReply = (ArtPollReply) ArtNetPacketParser.generatePacketByOpCode(ArtNetOpCodes.OpPollReply);
         artPollReply
-                .setAddress(0, 0, 0)
+                .setNetSwitch(10, 5)
                 .setIpAddress(interfaceAddress.getAddress().getAddress())
-                .setMacAddress(networkInterface.getHardwareAddress());
+                .setMacAddress(networkInterface.getHardwareAddress())
+                .setUniverseForInputPort(1, 7);
         return new DatagramPacket(artPollReply.getData(), artPollReply.getLength(), interfaceAddress.getBroadcast(), 0x1936);
     }
 
