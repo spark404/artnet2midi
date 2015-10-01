@@ -10,12 +10,16 @@
         </layout>
     </appender>
 
+    <logger name="net.strocamp">
+        <level value="DEBUG"/>
+    </logger>
+
     <logger name="org.springframework">
         <level value="WARN"/>
     </logger>
 
     <logger name="org.springframework.web.servlet">
-        <level value="TRACE" />
+        <level value="WARN" />
     </logger>
 
     <logger name="org.eclipse.jetty">
@@ -23,11 +27,11 @@
     </logger>
 
     <logger name="org.apache.jasper">
-        <level value="DEBUG"/>
+        <level value="WARN"/>
     </logger>
 
     <root>
-        <level value="DEBUG" />
+        <level value="INFO" />
         <appender-ref ref="console" />
     </root>
 </log4j:configuration>

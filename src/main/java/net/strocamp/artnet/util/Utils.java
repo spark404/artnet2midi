@@ -1,8 +1,5 @@
 package net.strocamp.artnet.util;
 
-import java.net.Inet4Address;
-import java.net.InterfaceAddress;
-
 public class Utils {
     final public static byte[] OOM_CODE = { 0x42, 0x42 };
 

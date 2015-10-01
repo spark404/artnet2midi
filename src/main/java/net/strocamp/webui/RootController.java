@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class RootController {
 
-    @RequestMapping("/lalala.htm")
+    @RequestMapping("/")
     public ModelAndView rootPage() {
         return new ModelAndView("index", "msg", "test");
     }

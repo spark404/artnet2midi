@@ -1,25 +1,16 @@
 package net.strocamp;
 
-import org.apache.jasper.servlet.JasperInitializer;
-import org.apache.tomcat.InstanceManager;
-import org.apache.tomcat.SimpleInstanceManager;
+import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
-import org.eclipse.jetty.jsp.JettyJspServlet;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
+import org.eclipse.jetty.plus.webapp.EnvConfiguration;
+import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.session.HashSessionManager;
-import org.eclipse.jetty.server.session.SessionHandler;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.Configuration;
+import org.eclipse.jetty.webapp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +24,10 @@ public class JettyManager {
     private Server server;
 
     private static final String CONTEXT_PATH = "/";
-    private static final String CONFIG_LOCATION = "net.strocamp.webui.config";
-    private static final String MAPPING_URL = "/";
-    private static final String DEFAULT_PROFILE = "dev";
+
+    static {
+        System.setProperty("org.apache.jasper.compiler.disablejsr199","false");
+    }
 
     public void startServer(int port) {
         Server server = new Server(port);
@@ -46,7 +38,7 @@ public class JettyManager {
                     "org.eclipse.jetty.webapp.JettyWebXmlConfiguration",
                     "org.eclipse.jetty.annotations.AnnotationConfiguration");
 
-            server.setHandler(getServletContextHandler(getContext()));
+            server.setHandler(getContext());
 
             server.start();
             server.join();
@@ -78,45 +70,42 @@ public class JettyManager {
         }
     }
 
-    private ServletContextHandler getServletContextHandler(WebApplicationContext context) throws IOException {
-        ServletContextHandler contextHandler = new ServletContextHandler();
-        contextHandler.setErrorHandler(null);
-        contextHandler.setContextPath(CONTEXT_PATH);
+    private WebAppContext getContext() throws IOException {
+        String resourceDir = "src/main/resources/web";
+        WebAppContext context = new WebAppContext();
+        context.setResourceBase(resourceDir);
+        context.setDescriptor(resourceDir + "/WEB-INF/web.xml");
+        context.setAttribute("javax.servlet.context.tempdir", getScratchDir());
+        context.setContextPath(CONTEXT_PATH);
+        context.setParentLoaderPriority(true);
+        context.setErrorHandler(null);
 
-        contextHandler.setAttribute("javax.servlet.context.tempdir", getScratchDir());
-        contextHandler.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
-                ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/.*taglibs.*\\.jar$");
-        contextHandler.setAttribute("org.eclipse.jetty.containerInitializers", jspInitializers());
+        context.setConfigurations(new Configuration[]
+                {
+                        new AnnotationConfiguration(),
+                        new WebInfConfiguration(),
+                        new WebXmlConfiguration(),
+                        new MetaInfConfiguration(),
+                        new FragmentConfiguration(),
+                        new EnvConfiguration(),
+                        new PlusConfiguration(),
+                        new JettyWebXmlConfiguration()
+                });
+        context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern",
+                ".*/.*javax.faces-[^/]*\\.jar$|.*/.*jsp-api-[^/]*\\.jar$|.*/.*jsp-[^/]*\\.jar$|.*/.*taglibs[^/]*\\.jar$|.*/target/classes/");
 
-        contextHandler.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
-        contextHandler.setSessionHandler(new SessionHandler(new HashSessionManager()));
+        context.setAttribute("javax.servlet.context.tempdir", getScratchDir());
+        context.setClassLoader(getUrlClassLoader());
 
-        contextHandler.setClassLoader(getUrlClassLoader());
+        context.setResourceBase(new ClassPathResource("webapp").getURI().toString());
 
-        contextHandler.addServlet(getJspServletHolder(), "*.jsp");
-        contextHandler.addServlet(new ServletHolder("dispatcher", new DispatcherServlet(context)), MAPPING_URL);
+        context.setAttribute("org.eclipse.jetty.containerInitializers", jspInitializers());
+        //context.addBean(new ServletContainerInitializersStarter(context), true);
 
-        contextHandler.addEventListener(new ContextLoaderListener(context));
-        contextHandler.setResourceBase(new ClassPathResource("webapp").getURI().toString());
+//        context.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+//        context.setSessionHandler(new SessionHandler(new HashSessionManager()));
+//        context.addEventListener(new ContextLoaderListener(context));
 
-        return contextHandler;
-    }
-
-    private static ServletHolder getJspServletHolder() {
-        ServletHolder holderJsp = new ServletHolder("jsp", JettyJspServlet.class);
-        holderJsp.setInitOrder(0);
-        holderJsp.setInitParameter("logVerbosityLevel", "DEBUG");
-        holderJsp.setInitParameter("fork", "false");
-        holderJsp.setInitParameter("xpoweredBy", "false");
-        holderJsp.setInitParameter("compilerTargetVM", "1.7");
-        holderJsp.setInitParameter("compilerSourceVM", "1.7");
-        holderJsp.setInitParameter("keepgenerated", "true");
-        return holderJsp;
-    }
-
-    private static WebApplicationContext getContext() {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(CONFIG_LOCATION);
         return context;
     }
 
@@ -149,5 +138,4 @@ public class JettyManager {
         initializers.add(initializer);
         return initializers;
     }
-
 }

@@ -1,6 +1,5 @@
 package net.strocamp.artnet.packets;
 
-import net.strocamp.artnet.ArtNetException;
 import net.strocamp.artnet.ArtNetOpCodes;
 
 import java.util.Arrays;
