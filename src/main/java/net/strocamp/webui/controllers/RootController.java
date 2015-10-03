@@ -1,4 +1,4 @@
-package net.strocamp.webui;
+package net.strocamp.webui.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

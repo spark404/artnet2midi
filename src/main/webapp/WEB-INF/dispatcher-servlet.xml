@@ -4,7 +4,7 @@
 	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
 
     <bean name="/welcome.htm" 
-		class="net.strocamp.webui.RootController" />
+		class="net.strocamp.webui.controllers.RootController" />
 		
     <bean id="viewResolver"
     	class="org.springframework.web.servlet.view.InternalResourceViewResolver" >

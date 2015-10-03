@@ -1,4 +1,4 @@
-package net.strocamp;
+package net.strocamp.webui.initializers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

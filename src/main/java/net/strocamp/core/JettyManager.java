@@ -1,7 +1,6 @@
-package net.strocamp;
+package net.strocamp.core;
 
 import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.plus.webapp.EnvConfiguration;
@@ -11,6 +10,7 @@ import org.eclipse.jetty.webapp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +19,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class JettyManager {
     private final static Logger logger = LoggerFactory.getLogger(JettyManager.class);
     private Server server;
@@ -51,8 +52,7 @@ public class JettyManager {
         if (server == null) {
             return;
         }
-        //server.setStopTimeout(10000L);
-        ;
+        server.setStopTimeout(10000L);
         try {
             new Thread() {
                 @Override

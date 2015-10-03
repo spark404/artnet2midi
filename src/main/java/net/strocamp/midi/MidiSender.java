@@ -5,7 +5,7 @@ import javax.sound.midi.*;
 public class MidiSender {
     Receiver receiver;
 
-    public MidiSender(MidiDevice.Info midiDeviceInfo) throws Exception {
+    public MidiSender(MidiDevice.Info midiDeviceInfo) throws MidiUnavailableException {
         MidiDevice midiDevice = MidiSystem.getMidiDevice(midiDeviceInfo);
         receiver = midiDevice.getReceiver();
         if (receiver == null) {

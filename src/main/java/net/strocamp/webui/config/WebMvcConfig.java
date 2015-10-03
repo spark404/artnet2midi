@@ -9,6 +9,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 @Configuration
 @EnableWebMvc
@@ -31,8 +32,9 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         return internalResourceViewResolver;
     }
 
-//    @Override
-//    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
-//        configurer.enable();
-//    }
+    @Bean
+    public MappingJackson2JsonView getJsonViewResolver() {
+        return new MappingJackson2JsonView();
+    }
+
 }

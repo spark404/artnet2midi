@@ -1,15 +1,20 @@
 package net.strocamp;
 
+import net.strocamp.artnet.ArtNetException;
 import net.strocamp.artnet.ArtNetNode;
-import net.strocamp.artnet.DmxHandler;
 import net.strocamp.artnet.DmxHandlerInfo;
 import net.strocamp.artnet.util.Utils;
-import net.strocamp.midi.MidiSender;
+import net.strocamp.core.DmxToMidiHandler;
+import net.strocamp.core.JettyManager;
+import net.strocamp.core.MidiSenderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiSystem;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -23,64 +28,21 @@ public class App
 
     public static void main( String[] args ) throws Exception
     {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("config.xml");
+
         // Embedded jetty
         new Thread() {
             @Override
             public void run() {
-                JettyManager jettyManager = new JettyManager();
+                JettyManager jettyManager = applicationContext.getBean(JettyManager.class);
                 jettyManager.startServer(8089);
             }
         }.start();
 
-        MidiSender midiSender = null;
-        MidiDevice.Info midiDeviceInfo[] = MidiSystem.getMidiDeviceInfo();
-        for (MidiDevice.Info info : midiDeviceInfo) {
-            MidiDevice midiDevice = MidiSystem.getMidiDevice(info);
-            int transmitters = midiDevice.getMaxTransmitters();
-            int receivers = midiDevice.getMaxReceivers();
-            logger.debug("Found MIDI device {} with {} receivers and {} transmitters", info.getName(), receivers, transmitters);
-            if (info.getName().equals("ArtNet2Midi") && midiDevice.getMaxReceivers() == -1) {
-                midiSender = new MidiSender(info);
-                break;
-            }
-        }
+        DmxToMidiHandler midiTriggerHandler = applicationContext.getBean(DmxToMidiHandler.class);
+        MidiSenderFactory midiSenderFactory = applicationContext.getBean(MidiSenderFactory.class);
 
-        if (midiSender == null) {
-           throw new Exception("Failed to find a midisender");
-        }
-
-        final MidiSender target = midiSender;
-
-        DmxHandler midiTriggerHandler = new DmxHandler() {
-            private byte[] lastValue = { -1, -1};
-
-            @Override
-            public void handle(byte[] data) {
-                byte channel_1 = data[0];
-                if (channel_1 != lastValue[0]) {
-                    lastValue[0] = channel_1;
-                    if (channel_1 == -1) {
-                        try {
-                            target.sendTrigger(1);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                byte channel_2 = data[1];
-                if (channel_2 != lastValue[1]) {
-                    lastValue[1] = channel_2;
-                    if (channel_2 == -1) {
-                        try {
-                            target.sendTrigger(2);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            }
-        };
+        midiTriggerHandler.setMidiSender(midiSenderFactory.getMidiSender("ArtNet2Midi"));
 
         NetworkInterface artNetInterface = null;
         InterfaceAddress artNetInterfaceAddress = null;
@@ -118,33 +80,14 @@ public class App
             }
         }
 
-        if (artNetInterface == null) {
-            throw new Exception("No interface found with the correct IP");
-        }
-
         logger.debug("Starting an ArtNet node on " + artNetInterface.getDisplayName());
-        final MidiSender destination = midiSender;
-        final ArtNetNode artNetNode = new ArtNetNode(artNetInterface, artNetInterfaceAddress);
-        Runnable artNetRunner = new Runnable() {
-            @Override
-            public void run() {
+        final ArtNetNode artNetNode = ArtNetNode.getInstance();
 
-                try {
-                    artNetNode.handler();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-
-        Thread artNetThread = new Thread(artNetRunner);
-        artNetThread.setDaemon(true);
-        artNetThread.start();
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName name = new ObjectName("net.strocamp.artnet2midi:type=ArtNetNode");
+        mbs.registerMBean(artNetNode, name);
 
         artNetNode.addHandler(new DmxHandlerInfo("midiTrigger", 7, 0, 2), midiTriggerHandler);
-
-        artNetThread.join();
     }
 
     private static String printableAddress(byte[] hex) {

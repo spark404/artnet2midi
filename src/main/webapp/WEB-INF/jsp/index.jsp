@@ -33,7 +33,7 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Settings</a></li>
+                <li class="active"><a href="/">Settings</a></li>
                 <li><a href="universe/0">Universe 0</a></li>
                 <li><a href="universe/1">Universe 1</a></li>
             </ul>
@@ -57,8 +57,8 @@
                 <div class="panel-body">
                     <p>Select network interface</p>
                     <p>
-                    <div class="dropdown" style="float: right;">
-                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Dropdown <b class="caret"></b></a>
+                    <div id="dropdown-interfaces" class="dropdown" style="float: right;">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">Select interface <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">Action</a></li>
                             <li><a href="#">Another action</a></li>
@@ -67,15 +67,20 @@
                     </p>
                     <p style="clear: both;">Configure network Id</p>
                     <p>
-                        <input type="text" class="form-control" placeholder="Sub" style="width: 50px; float: right;">
+                        <input id="subnet" type="text" class="form-control" placeholder="Sub" style="width: 50px; float: right;">
                         <span style="float:right; padding: 5px;">:</span>
-                        <input type="text" class="form-control" placeholder="Net" style="width: 50px; float: right;">
+                        <input id="net" type="text" class="form-control" placeholder="Net" style="width: 50px; float: right;">
                     </p>
                     <p style="clear: both;">Start / Stop the ArtNet Client</p>
                     <p align="right">
                         <button id="server-on" type="button" class="btn btn-success">Start</button>
                         <button id="server-off" type="button" class="btn btn-danger">Stop</button>
                     </p>
+                    <div id="errormessage" class="alert alert-danger hidden" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        Enter a valid email address
+                    </div>
                 </div>
             </div>
         </div>
@@ -85,13 +90,11 @@
                     <h3 class="panel-title">Controller(s)</h3>
                 </div>
                 <div class="panel-body">
-                    <table class="table table-striped">
+                    <table id="controller-list" class="table table-striped">
                         <thead>
                           <tr><th>Id</th><th>Last seen</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td>ArtNet2Midi</td><td>18:15</td></tr>
-                            <tr><td>DMX Console</td><td>18:15</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -106,9 +109,7 @@
 <!-- Placed at the end of the document so the pages load faster -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<script>
-    $('#server-off').prop('disabled', true);
-</script>
+<script src="js/artnet2midi.js"></script>
 </body>
 </html>
 

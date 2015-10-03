@@ -1,4 +1,4 @@
-package net.strocamp;
+package net.strocamp.webui.initializers;
 
 import org.apache.jasper.servlet.JasperInitializer;
 import org.slf4j.Logger;

@@ -4,6 +4,7 @@ import net.strocamp.artnet.packets.ArtDmx;
 import net.strocamp.artnet.packets.ArtNetPacket;
 import net.strocamp.artnet.packets.ArtPoll;
 import net.strocamp.artnet.packets.ArtPollReply;
+import net.strocamp.core.Util;
 
 import java.util.Arrays;
 
