@@ -84,7 +84,7 @@ public class ArtPollReply extends ArtNetPacket {
     public ArtPollReply setNetSwitch(int net, int subnet) {
         byte[] packetData = getData();
         packetData[OFFSET_NETSWITCH] = (byte)(net & 0x7f); // Net 0 - 127
-        packetData[OFFSET_SUBNETSWITCH] = (byte)(net & 0xf); // Subnet 0 - 15
+        packetData[OFFSET_SUBNETSWITCH] = (byte)(subnet & 0xf); // Subnet 0 - 15
         return this;
     }
 

@@ -3,11 +3,9 @@ package net.strocamp.artnet;
 import net.strocamp.artnet.packets.ArtDmx;
 import net.strocamp.artnet.packets.ArtNetPacket;
 import net.strocamp.artnet.packets.ArtPollReply;
-import net.strocamp.core.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -69,15 +67,11 @@ public class ArtNetNode implements ArtNetNodeMBean {
             throw new ArtNetException("Node already started");
         }
         logger.info("Starting ArtNetNode on " + interfaceAddress.toString());
-        Runnable artNetRunner = new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-                    handler();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        Runnable artNetRunner = () -> {
+            try {
+                handler();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         };
         handlerThread = new Thread(artNetRunner);

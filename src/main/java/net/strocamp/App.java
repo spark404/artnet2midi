@@ -57,11 +57,13 @@ public class App
             byte[] artnetAddr = Utils.calculateArtNetAddress(macAddress, Utils.OOM_CODE, false);
             logger.debug("Trying address " + printableAddress(artnetAddr) + " on " + networkInterface.getDisplayName());
 
-            for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
-                if (Arrays.equals(artnetAddr, interfaceAddress.getAddress().getAddress())) {
-                    artNetInterface = networkInterface;
-                    artNetInterfaceAddress = interfaceAddress;
-                    break;
+            if (networkInterface.getInterfaceAddresses() != null) {
+                for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
+                    if (Arrays.equals(artnetAddr, interfaceAddress.getAddress().getAddress())) {
+                        artNetInterface = networkInterface;
+                        artNetInterfaceAddress = interfaceAddress;
+                        break;
+                    }
                 }
             }
         }
@@ -72,10 +74,15 @@ public class App
             if (artNetInterface == null) {
                 artNetInterface = NetworkInterface.getByName("wlan0");
             }
-            for (InterfaceAddress interfaceAddress : artNetInterface.getInterfaceAddresses()) {
-                if (interfaceAddress.getAddress() instanceof Inet4Address) {
-                    artNetInterfaceAddress = interfaceAddress;
-                    break;
+            if (artNetInterface == null) {
+                artNetInterface = NetworkInterface.getByName("lo0");
+            }
+            if (artNetInterface.getInterfaceAddresses() != null) {
+                for (InterfaceAddress interfaceAddress : artNetInterface.getInterfaceAddresses()) {
+                    if (interfaceAddress.getAddress() instanceof Inet4Address) {
+                        artNetInterfaceAddress = interfaceAddress;
+                        break;
+                    }
                 }
             }
         }

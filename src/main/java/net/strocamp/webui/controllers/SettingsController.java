@@ -11,13 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.*;
-import java.util.logging.Logger;
 
 @Controller
 @RequestMapping("/settings")
@@ -28,8 +26,7 @@ public class SettingsController {
 
     @RequestMapping(value = "/interfaces", method = RequestMethod.GET)
     public @ResponseBody List<Interface> interfaceList() throws ArtNetException {
-        List<Interface> interfaces = getInterfaces();
-        return interfaces;
+        return getInterfaces();
     }
 
     @RequestMapping(value = "/nodestart", method = RequestMethod.POST)

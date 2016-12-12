@@ -1,14 +1,17 @@
 // Initialization of the page
-$('#server-off').prop('disabled', true);
-$('#server-on').prop('disabled', true);
+var serverOffButton = $('#server-off');
+var serverOnButton = $('#server-on');
 
-$('#server-on').click(clickServerStart);
-$('#server-off').click(clickServerStop);
+serverOffButton.prop('disabled', true);
+serverOffButton.click(clickServerStart);
+
+serverOnButton.prop('disabled', true);
+serverOnButton.click(clickServerStop);
 
 updateControllerList();
 
 // Deal with the drop down of the settings
-$('#dropdown-interfaces').children()[1].innerHTML=''
+$('#dropdown-interfaces').children()[1].innerHTML='';
 $.getJSON( "settings/interfaces", function( data ) {
     $.each( data, function( index, item ) {
         console.info(item);
@@ -72,7 +75,7 @@ function clickServerStop(event) {
 }
 
 function gatherStartDetails() {
-    var interface = $('#dropdown-interfaces').children()[0].childNodes[0].textContent.split("-")[0].trim();
+    var netInterface = $('#dropdown-interfaces').children()[0].childNodes[0].textContent.split("-")[0].trim();
     var network = $('#net').val();
     if (network == "") {
         $("#net").val("0");
@@ -84,7 +87,7 @@ function gatherStartDetails() {
         subnet = "0"
     }
 
-    return {networkInterface:interface, network:network, subnet:subnet}
+    return {networkInterface:netInterface, network:network, subnet:subnet}
  }
 
 function displayErrorMessage(message) {
@@ -110,7 +113,7 @@ function updateControllerList(){
 }
 
 function updateControllerToTable(name, lastSeen) {
-    var table = $('#controller-list').find("tbody")
+    var table = $('#controller-list').find("tbody");
     var found = false;
     $.each(table.children(), function(index, item) {
         var currentItem = item.children[0].innerText;
@@ -120,7 +123,7 @@ function updateControllerToTable(name, lastSeen) {
         }
     });
     if (!found) {
-        $('#controller-list > tbody:last-child')
+        $('#controller-list').find('> tbody:last-child')
             .append('<tr><td>' + name + '</td><td>' + lastSeen + '</td></tr>');
     }
 }

@@ -31,7 +31,7 @@ public class JettyManager {
     }
 
     public void startServer(int port) {
-        Server server = new Server(port);
+        server = new Server(port);
         try {
             Configuration.ClassList classlist = Configuration.ClassList
                     .setServerDefault( server );
@@ -126,15 +126,14 @@ public class JettyManager {
 
     private ClassLoader getUrlClassLoader()
     {
-        ClassLoader jspClassLoader = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
-        return jspClassLoader;
+        return new URLClassLoader(new URL[0], this.getClass().getClassLoader());
     }
 
     private List<ContainerInitializer> jspInitializers()
     {
         JettyJasperInitializer sci = new JettyJasperInitializer();
         ContainerInitializer initializer = new ContainerInitializer(sci, null);
-        List<ContainerInitializer> initializers = new ArrayList<ContainerInitializer>();
+        List<ContainerInitializer> initializers = new ArrayList<>();
         initializers.add(initializer);
         return initializers;
     }

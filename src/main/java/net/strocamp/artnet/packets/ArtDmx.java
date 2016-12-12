@@ -22,7 +22,7 @@ public class ArtDmx extends ArtNetPacket {
         setData(data);
         network = data[DMX_ADDRESS+1];
         subnet = data[DMX_ADDRESS] >> 3;
-        universe = data[DMX_ADDRESS] & 07;
+        universe = data[DMX_ADDRESS] & 0x7;
         return this;
     }
 
