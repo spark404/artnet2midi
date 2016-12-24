@@ -7,7 +7,8 @@ public class DmxToMidiHandler extends DmxHandler {
     private MidiSender midiSender;
     private byte[] lastValue = { -1, -1};
 
-    public DmxToMidiHandler() {
+    public DmxToMidiHandler(int universe, int address, int channels) {
+        super("DmxToMidiHandler", universe, address, channels);
     }
 
     public void setMidiSender(MidiSender midiSender) {
@@ -15,7 +16,7 @@ public class DmxToMidiHandler extends DmxHandler {
     }
 
     @Override
-    public void handle(byte[] data) {
+    public void onDmx(byte[] data) {
         byte channel_1 = data[0];
         if (channel_1 != lastValue[0]) {
             lastValue[0] = channel_1;

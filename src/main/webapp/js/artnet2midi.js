@@ -3,10 +3,10 @@ var serverOffButton = $('#server-off');
 var serverOnButton = $('#server-on');
 
 serverOffButton.prop('disabled', true);
-serverOffButton.click(clickServerStart);
+serverOffButton.click(clickServerStop);
 
 serverOnButton.prop('disabled', true);
-serverOnButton.click(clickServerStop);
+serverOnButton.click(clickServerStart);
 
 updateControllerList();
 

@@ -6,6 +6,7 @@ import net.strocamp.artnet.ArtNetNodeInfo;
 import net.strocamp.webui.domain.Interface;
 import net.strocamp.webui.domain.NodeConfig;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,7 +23,12 @@ import java.util.*;
 public class SettingsController {
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(SettingsController.class);
 
-    private final static ArtNetNode artNetNode = ArtNetNode.getInstance();
+    private ArtNetNode artNetNode;
+
+    @Autowired
+    public void setArtNetNode(ArtNetNode artNetNode) {
+        this.artNetNode = artNetNode;
+    }
 
     @RequestMapping(value = "/interfaces", method = RequestMethod.GET)
     public @ResponseBody List<Interface> interfaceList() throws ArtNetException {

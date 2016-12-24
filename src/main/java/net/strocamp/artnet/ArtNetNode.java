@@ -5,16 +5,19 @@ import net.strocamp.artnet.packets.ArtNetPacket;
 import net.strocamp.artnet.packets.ArtPollReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Component
 public class ArtNetNode implements ArtNetNodeMBean {
     private final static Logger logger = LoggerFactory.getLogger(ArtNetNode.class);
 
-    private Map<DmxHandlerInfo, DmxHandler> handlers;
+    private List<DmxHandler> handlers;
     private Thread handlerThread;
     private DatagramSocket artNetSocket;
     private Map<String, ArtNetNodeInfo> discoveredNodes = new ConcurrentHashMap<>();
@@ -27,19 +30,10 @@ public class ArtNetNode implements ArtNetNodeMBean {
     private int subnetwork;
     private int universe;
 
-    private static volatile ArtNetNode instance;
-
-    public static ArtNetNode getInstance() {
-        synchronized (ArtNetNode.class) {
-            if (instance == null) {
-                instance = new ArtNetNode();
-            }
-        }
-        return instance;
-    }
-
-    private ArtNetNode() {
-        handlers = new ConcurrentHashMap<>();
+    @Autowired
+    public ArtNetNode(List<DmxHandler> dmxHandlers) {
+        handlers = new ArrayList<>();
+        handlers.addAll(dmxHandlers);
     }
 
     public void setNetworkInterface(NetworkInterface networkInterface) {
@@ -169,28 +163,17 @@ public class ArtNetNode implements ArtNetNodeMBean {
     }
 
     private void handleDmxData(ArtDmx dmxPacket) {
-        for (Map.Entry<DmxHandlerInfo, DmxHandler> handlerEntry : handlers.entrySet()) {
-            DmxHandlerInfo info = handlerEntry.getKey();
-            if (info.getUniverse() != dmxPacket.getUniverse()) {
+        for (DmxHandler handlerEntry : handlers) {
+            if (handlerEntry.getUniverse() != dmxPacket.getUniverse()) {
                 return;
             }
 
-            int startPosition = info.getAddress();
-            int length = info.getWidth();
+            int startPosition = handlerEntry.getAddress();
+            int length = handlerEntry.getWidth();
 
             // TODO length checking
             byte[] dataPart = Arrays.copyOfRange(dmxPacket.getDmxData(), startPosition, startPosition + length);
-            handlerEntry.getValue().handle(dataPart);
-        }
-    }
-
-    public void addHandler(DmxHandlerInfo dmxHandlerInfo, DmxHandler dmxHandler) {
-        handlers.put(dmxHandlerInfo, dmxHandler);
-    }
-
-    public void removeHandler(DmxHandlerInfo dmxHandlerInfo) {
-        if (handlers.containsKey(dmxHandlerInfo)) {
-            handlers.remove(dmxHandlerInfo);
+            handlerEntry.onDmx(dataPart);
         }
     }
 
@@ -198,7 +181,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
         return discoveredNodes.values();
     }
 
-    public Collection<DmxHandlerInfo> getHandlers() {
-        return handlers.keySet();
+    public Collection<DmxHandler> getHandlers() {
+        return Collections.unmodifiableList(handlers);
     }
 }

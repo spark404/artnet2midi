@@ -22,7 +22,6 @@ public class TestApp {
         statusLed.blink(500l, 3000l, PinState.HIGH);
 
 
-        final AtomicBoolean quit = new AtomicBoolean(false);
         final AtomicBoolean buttonPressed = new AtomicBoolean(false);
 
 
@@ -62,12 +61,8 @@ public class TestApp {
             }
         });
 
-        while (!quit.get()) {
+        while (true) {
             Thread.sleep(250l);
         }
-
-        System.out.println("<--Pi4J--> GPIO Listen Example ... done");
-        gpio.shutdown();
     }
 }
-
