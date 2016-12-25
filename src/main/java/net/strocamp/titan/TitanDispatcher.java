@@ -1,32 +1,38 @@
 package net.strocamp.titan;
 
-import org.apache.cxf.jaxrs.client.WebClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.MediaType;
 import java.text.DecimalFormat;
 
 @Component
 public class TitanDispatcher {
 
+    private String baseUrl;
+
+    @Value("${titan.wepapi.url}")
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
     public String getVersion() {
-        WebClient restClient = WebClient.create("http://192.168.168.107:4430");
-        String apiVersion = restClient
-                .path("/titan/get/System/SoftwareVersion")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-        return apiVersion;
+        RestTemplate restTemplate = new RestTemplate();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .path("/titan/get/System/SoftwareVersion");
+
+        return restTemplate
+                .getForObject(builder.build().encode().toString(), String.class);
     }
 
     public String getShowName() {
-        WebClient restClient = WebClient.create("http://192.168.168.107:4430");
-        String apiVersion = restClient
-                .path("/titan/get/Show/ShowName")
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-        return apiVersion;
+        RestTemplate restTemplate = new RestTemplate();
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .path("/titan/get/Show/ShowName");
+
+        return restTemplate
+                .getForObject(builder.build().encode().toString(), String.class);
 
     }
 
@@ -36,12 +42,13 @@ public class TitanDispatcher {
         }
         DecimalFormat formatter = new DecimalFormat("#.###");
 
-        WebClient restClient = WebClient.create("http://192.168.168.107:4430");
-        restClient
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/titan/script/Playbacks/FirePlaybackAtLevel")
-                .query("userNumber",userNumber)
-                .query("level", formatter.format(level))
-                .query("bool",alwaysRefire)
-                .get();
+                .queryParam("userNumber", userNumber)
+                .queryParam("level", formatter.format(level))
+                .queryParam("bool", alwaysRefire);
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getForObject(builder.build().encode().toString(), String.class);
     }
 }

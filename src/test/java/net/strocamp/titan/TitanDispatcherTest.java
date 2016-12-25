@@ -12,6 +12,7 @@ public class TitanDispatcherTest {
     @Before
     public void setUp() throws Exception {
         titanDispatcher = new TitanDispatcher();
+        titanDispatcher.setBaseUrl("http://192.168.168.107:4430");
     }
 
     @Test
