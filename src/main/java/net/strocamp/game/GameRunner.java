@@ -39,6 +39,11 @@ public class GameRunner {
     public void reset() {
         buttonPressed.set(false);
         piInterface.ledOff();
+        try {
+            titanDispatcher.firePlayback(7, 0, true);
+        } catch (Exception e) {
+            logger.error("Failed to fire trigger on the Titan", e);
+        }
     }
 
     public void buttonPress(Button button) {
