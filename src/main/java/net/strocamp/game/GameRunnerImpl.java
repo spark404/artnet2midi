@@ -4,10 +4,13 @@ import net.strocamp.titan.TitanDispatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
@@ -17,7 +20,10 @@ public class GameRunnerImpl implements GameRunner {
     private PiInterface piInterface;
     private TitanDispatcher titanDispatcher;
 
-    final AtomicBoolean buttonPressed = new AtomicBoolean(false);
+    private final AtomicBoolean buttonPressed = new AtomicBoolean(false);
+
+    private Button activeButton;
+    private Map<Button, Integer> playbacks;
 
     @Autowired
     public void setPiInterface(PiInterface piInterface) {
@@ -30,10 +36,16 @@ public class GameRunnerImpl implements GameRunner {
     }
 
     @PostConstruct
-    public void initialize() {
+    public void initialize(@Value("${gamerunner.button_a.playback}") int buttonAPlayback,
+                           @Value("${gamerunner.button_b.playback}") int buttonBPlayback) {
         piInterface.onAButton(() -> buttonPress(Button.BUTTON_A));
         piInterface.onBButton(() -> buttonPress(Button.BUTTON_B));
-        piInterface.onResetButton(() -> reset());
+        piInterface.onResetButton(this::reset);
+
+        this.playbacks = new HashMap<>();
+        playbacks.put(Button.BUTTON_A, buttonAPlayback);
+        playbacks.put(Button.BUTTON_B, buttonBPlayback);
+
         logger.info("Raspberry GPIO Initialized");
     }
 
@@ -43,7 +55,10 @@ public class GameRunnerImpl implements GameRunner {
         buttonPressed.set(false);
         piInterface.ledOff();
         try {
-            titanDispatcher.firePlayback(7, 0, true);
+            if (activeButton != null) {
+                titanDispatcher.firePlayback(playbacks.get(activeButton), 0, true);
+                activeButton = null;
+            }
         } catch (Exception e) {
             logger.error("Failed to fire trigger on the Titan", e);
         }
@@ -62,7 +77,8 @@ public class GameRunnerImpl implements GameRunner {
 
     private void triggerCue(Button button) {
         try {
-            titanDispatcher.firePlayback(7, 1, true);
+            activeButton = button;
+            titanDispatcher.firePlayback(playbacks.get(button), 1, true);
         } catch (Exception e) {
             logger.error("Failed to fire trigger on the Titan", e);
         }

@@ -100,7 +100,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
     @PreDestroy
     public void shutdown() {
         logger.debug("Shutdown requested");
-        if (handlerThread != null && !handlerThread.isAlive()) {
+        if (handlerThread != null && handlerThread.isAlive()) {
             terminate = true;
             try {
                 handlerThread.join(5000);
