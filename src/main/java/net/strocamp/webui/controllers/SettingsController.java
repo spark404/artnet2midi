@@ -37,33 +37,18 @@ public class SettingsController {
 
     @RequestMapping(value = "/nodestart", method = RequestMethod.POST)
     public @ResponseBody Boolean startServer(NodeConfig nodeConfig) throws ArtNetException {
-        try {
-            NetworkInterface artNetInterface = NetworkInterface.getByName(nodeConfig.getNetworkInterface());
-            InterfaceAddress artNetInterfaceAddress = null;
-            for (InterfaceAddress interfaceAddress : artNetInterface.getInterfaceAddresses()) {
-                if (interfaceAddress.getAddress() instanceof Inet4Address) {
-                    artNetInterfaceAddress = interfaceAddress;
-                    break;
-                }
-            }
-
-            logger.info("Configuring ArtNetNode with interface:{}, address:{}, network:{}, subnet:{}",
-                    artNetInterface.getDisplayName(), artNetInterfaceAddress.getAddress().getHostAddress(),
-                    nodeConfig.getNetwork(), nodeConfig.getSubnet());
-            artNetNode.setNetworkInterface(artNetInterface);
-            artNetNode.setInterfaceAddress(artNetInterfaceAddress);
-            artNetNode.setNetwork(nodeConfig.getNetwork());
-            artNetNode.setSubnetwork(nodeConfig.getSubnet());
-        } catch (SocketException e) {
-            throw new ArtNetException("Unable to determine the interface");
-        }
+        artNetNode.configureNetworkFromInterfaceName(nodeConfig.getNetworkInterface());
+        artNetNode.setNetwork(nodeConfig.getNetwork());
+        artNetNode.setSubnetwork(nodeConfig.getSubnet());
         artNetNode.start();
+
         return true;
     }
 
     @RequestMapping(value = "/nodestop", method = RequestMethod.POST)
     public @ResponseBody Boolean stopServer() throws ArtNetException {
         artNetNode.stop();
+
         return true;
     }
 

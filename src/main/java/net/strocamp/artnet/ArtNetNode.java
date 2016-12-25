@@ -78,16 +78,16 @@ public class ArtNetNode implements ArtNetNodeMBean {
         if (autoStart) {
             logger.debug("Autostart enabled, attempting to start node");
 
-            String artnetInterface = env.getProperty("artnetnode.interface", (String)null);
+            String artnetInterface = env.getProperty("artnetnode.dmx.interface", (String)null);
             try {
                 configureNetworkFromInterfaceName(artnetInterface);
             } catch (ArtNetException e) {
                 logger.error("Failed to start ArtNetNode", e);
             }
 
-            this.setUniverse(env.getProperty("artnetnode,dmx.universe", Integer.class, 0));
-            this.setNetwork(env.getProperty("artnetnode,dmx.network", Integer.class, 0));
-            this.setSubnetwork(env.getProperty("artnetnode,dmx.sunbet", Integer.class, 0));
+            this.setUniverse(env.getProperty("artnetnode.dmx.universe", Integer.class, 0));
+            this.setNetwork(env.getProperty("artnetnode.dmx.network", Integer.class, 0));
+            this.setSubnetwork(env.getProperty("artnetnode.dmx.sunbet", Integer.class, 0));
         }
     }
 
@@ -235,7 +235,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
         return Collections.unmodifiableList(handlers);
     }
 
-    private void configureNetworkFromInterfaceName(String network) throws ArtNetException {
+    public void configureNetworkFromInterfaceName(String network) throws ArtNetException {
         try {
             NetworkInterface artNetInterface = NetworkInterface.getByName(network);
             InterfaceAddress artNetInterfaceAddress = null;
