@@ -36,6 +36,7 @@ public class ButtonDmxHandler extends DmxHandler {
         } else if (comparison < 200 && currentValue >=200) {
             // rising edge
             logger.info("Rising Edge");
+
             gameRunner.reset();
         }
     }
