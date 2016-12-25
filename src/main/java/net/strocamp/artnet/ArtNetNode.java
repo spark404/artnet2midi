@@ -88,6 +88,12 @@ public class ArtNetNode implements ArtNetNodeMBean {
             this.setUniverse(env.getProperty("artnetnode.dmx.universe", Integer.class, 0));
             this.setNetwork(env.getProperty("artnetnode.dmx.network", Integer.class, 0));
             this.setSubnetwork(env.getProperty("artnetnode.dmx.sunbet", Integer.class, 0));
+
+            try {
+                start();
+            } catch (ArtNetException e) {
+                logger.error("Failed to start ArtNetNode on {}", artnetInterface, e);
+            }
         }
     }
 
