@@ -6,8 +6,12 @@ import net.strocamp.artnet.packets.ArtPollReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.net.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,10 +34,23 @@ public class ArtNetNode implements ArtNetNodeMBean {
     private int subnetwork;
     private int universe;
 
+    private boolean autoStart;
+    private Environment env;
+
     @Autowired
     public ArtNetNode(List<DmxHandler> dmxHandlers) {
         handlers = new ArrayList<>();
         handlers.addAll(dmxHandlers);
+    }
+
+    @Autowired
+    public void setEnv(Environment env) {
+        this.env = env;
+    }
+
+    @Value("${artnetnode.autostart:#{false}}")
+    public void setAutoStart(boolean autoStart) {
+        this.autoStart = autoStart;
     }
 
     public void setNetworkInterface(NetworkInterface networkInterface) {
@@ -56,10 +73,43 @@ public class ArtNetNode implements ArtNetNodeMBean {
         this.universe = universe;
     }
 
+    @PostConstruct
+    public void initialize() {
+        if (autoStart) {
+            logger.debug("Autostart enabled, attempting to start node");
+
+            String artnetInterface = env.getProperty("artnetnode.interface", (String)null);
+            try {
+                configureNetworkFromInterfaceName(artnetInterface);
+            } catch (ArtNetException e) {
+                logger.error("Failed to start ArtNetNode", e);
+            }
+
+            this.setUniverse(env.getProperty("artnetnode,dmx.universe", Integer.class, 0));
+            this.setNetwork(env.getProperty("artnetnode,dmx.network", Integer.class, 0));
+            this.setSubnetwork(env.getProperty("artnetnode,dmx.sunbet", Integer.class, 0));
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        logger.debug("Shutdown requested");
+        if (handlerThread != null && !handlerThread.isAlive()) {
+            terminate = true;
+            try {
+                handlerThread.join(5000);
+            } catch (InterruptedException e) {
+                logger.error(("Failed to shutdown handler"));
+            }
+        }
+    }
+
     public void start() throws ArtNetException {
         if (handlerThread != null)  {
             throw new ArtNetException("Node already started");
         }
+        logger.info("Configuring ArtNetNode with interface:{}, address:{}, network:{}, subnet:{}",
+                networkInterface.getDisplayName(), interfaceAddress.getAddress().getHostAddress(), network, subnetwork);
         logger.info("Starting ArtNetNode on " + interfaceAddress.toString());
         Runnable artNetRunner = () -> {
             try {
@@ -183,5 +233,24 @@ public class ArtNetNode implements ArtNetNodeMBean {
 
     public Collection<DmxHandler> getHandlers() {
         return Collections.unmodifiableList(handlers);
+    }
+
+    private void configureNetworkFromInterfaceName(String network) throws ArtNetException {
+        try {
+            NetworkInterface artNetInterface = NetworkInterface.getByName(network);
+            InterfaceAddress artNetInterfaceAddress = null;
+            for (InterfaceAddress interfaceAddress : artNetInterface.getInterfaceAddresses()) {
+                if (interfaceAddress.getAddress() instanceof Inet4Address) {
+                    artNetInterfaceAddress = interfaceAddress;
+                    break;
+                }
+            }
+
+            setNetworkInterface(artNetInterface);
+            setInterfaceAddress(artNetInterfaceAddress);
+        } catch (SocketException e) {
+            throw new ArtNetException("Unable to determine the interface");
+        }
+
     }
 }

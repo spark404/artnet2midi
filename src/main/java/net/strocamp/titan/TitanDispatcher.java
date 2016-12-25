@@ -1,6 +1,7 @@
 package net.strocamp.titan;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -11,14 +12,16 @@ import java.text.DecimalFormat;
 public class TitanDispatcher {
 
     private String baseUrl;
+    private RestTemplate restTemplate;
 
     @Value("${titan.wepapi.url}")
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = baseUrl;
+        restTemplate = new RestTemplate();
     }
 
     public String getVersion() {
-        RestTemplate restTemplate = new RestTemplate();
+
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/titan/get/System/SoftwareVersion");
 
@@ -27,7 +30,6 @@ public class TitanDispatcher {
     }
 
     public String getShowName() {
-        RestTemplate restTemplate = new RestTemplate();
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .path("/titan/get/Show/ShowName");
 
@@ -48,7 +50,6 @@ public class TitanDispatcher {
                 .queryParam("level", formatter.format(level))
                 .queryParam("bool", alwaysRefire);
 
-        RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getForObject(builder.build().encode().toString(), String.class);
+        restTemplate.exchange(builder.build().encode().toString(), HttpMethod.GET, null, Void.class);
     }
 }
