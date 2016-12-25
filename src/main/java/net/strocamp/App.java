@@ -1,27 +1,19 @@
 package net.strocamp;
 
-import net.strocamp.core.JettyManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+@EnableAutoConfiguration
+@EnableWebMvc
+@ComponentScan(basePackages = { "net.strocamp.webui", "net.strocamp.artnet", "net.strocamp.game" , "net.strocamp.titan"})
+@PropertySource(value = {"file:/home/spark/artnet2midi/app.properties"}, ignoreResourceNotFound = true)
 public class App
 {
-    private final static Logger logger = LoggerFactory.getLogger(App.class);
-
     public static void main( String[] args ) throws Exception
     {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("config.xml");
-
-        logger.info("Starting embedded Jetty");
-        // Embedded jetty
-        new Thread() {
-            @Override
-            public void run() {
-                JettyManager jettyManager = applicationContext.getBean(JettyManager.class);
-                jettyManager.startServer(8089);
-            }
-        }.start();
+        SpringApplication.run(App.class, args);
     }
 }

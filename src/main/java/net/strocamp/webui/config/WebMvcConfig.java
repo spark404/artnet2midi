@@ -17,7 +17,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = { "net.strocamp.webui", "net.strocamp.artnet", "net.strocamp.game" , "net.strocamp.titan"})
-@PropertySource({"file:/home/spark/artnet2midi/app.properties"})
+@PropertySource(value = {"file:/home/spark/artnet2midi/app.properties"}, ignoreResourceNotFound = true)
 public class WebMvcConfig extends WebMvcConfigurerAdapter {
     private final static Logger logger = LoggerFactory.getLogger(WebMvcConfig.class);
 
