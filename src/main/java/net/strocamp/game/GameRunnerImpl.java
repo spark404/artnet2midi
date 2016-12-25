@@ -25,6 +25,9 @@ public class GameRunnerImpl implements GameRunner {
     private Button activeButton;
     private Map<Button, Integer> playbacks;
 
+    private int buttonAPlayback;
+    private int buttonBPlayback;
+
     @Autowired
     public void setPiInterface(PiInterface piInterface) {
         this.piInterface = piInterface;
@@ -35,9 +38,18 @@ public class GameRunnerImpl implements GameRunner {
         this.titanDispatcher = titanDispatcher;
     }
 
+    @Value("${gamerunner.button_a.playback}")
+    public void setButtonAPlayback(int buttonAPlayback) {
+        this.buttonAPlayback = buttonAPlayback;
+    }
+
+    @Value("${gamerunner.button_b.playback}")
+    public void setButtonBPlayback(int buttonBPlayback) {
+        this.buttonBPlayback = buttonBPlayback;
+    }
+
     @PostConstruct
-    public void initialize(@Value("${gamerunner.button_a.playback}") int buttonAPlayback,
-                           @Value("${gamerunner.button_b.playback}") int buttonBPlayback) {
+    public void initialize() {
         piInterface.onAButton(() -> buttonPress(Button.BUTTON_A));
         piInterface.onBButton(() -> buttonPress(Button.BUTTON_B));
         piInterface.onResetButton(this::reset);
