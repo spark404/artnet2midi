@@ -68,7 +68,7 @@ public class GameRunnerImpl implements GameRunner {
         }
     }
 
-    private enum Button {
+    enum Button {
         BUTTON_A,
         BUTTON_B;
     }
