@@ -1,7 +1,10 @@
 package net.strocamp;
 
+import net.strocamp.game.ButtonDmxHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -14,8 +17,17 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @PropertySource(value = {"file:/home/spark/artnet2midi/app.properties"}, ignoreResourceNotFound = true)
 public class App
 {
+    @Value("${gameserver.dmx.address}")
+    private int buttonAddress;
+
     public static void main( String[] args ) throws Exception
     {
         SpringApplication.run(App.class, args);
     }
+
+    @Bean
+    public ButtonDmxHandler getButtonDmxHandler() {
+        return new ButtonDmxHandler("GameButton", 0, buttonAddress);
+    }
+
 }
