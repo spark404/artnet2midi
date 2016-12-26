@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Fixture Name="Raspberry Gameserver" ShortName="Gameserver" Company="Hugo">
+  <Copyright Notice="© Avolites Ltd. 2016" />
+  <History Date="26-12-16" Author="Hugo" Comment="Created" />
+  <Manual Filename="" Summary="" />
+  <Control>
+    <Attribute ID="Reset" Name="Reset" Description="" Group="S">
+      <Locate Locate="1" PowerOn="1" />
+      <Function ID="1" Name="Safe" Display="'Safe'" Dmx="0~199" />
+      <Function ID="2" Name="Reset" Display="'Reset'" Dmx="200~255" />
+      <Function ID="3" Name="Raw DMX" Display="'Raw DMX %.f',0~255" Dmx="0~255" />
+    </Attribute>
+    <Attribute ID="Reserved" Name="Reserved" Description="" Group="S">
+      <Locate Locate="1:0" PowerOn="1:0" />
+      <Function ID="1" Name="Safe" Display="'Safe'" Dmx="0~255" />
+      <Function ID="2" Name="Raw DMX" Display="'Raw DMX %.f',0~255" Dmx="0~255" />
+    </Attribute>
+  </Control>
+  <Mode Name="Basic" Channels="2">
+    <Import PearlRef="" DiamondRef="" WysiwygRef="" />
+    <Physical>
+      <Bulb Type="" Lumens="" ColourTemp="" />
+      <Lens Name="" Degrees="" />
+      <Weight Kg="" />
+      <Size Height="" Width="" Depth="" />
+      <Focus Type="Fixed" PanMax="0" TiltMax="0" PanMaxSpeed="0" TiltMaxSpeed="0" />
+    </Physical>
+    <Include>
+      <Attribute ID="Reset" ChannelOffset="1" Wheel="28" />
+      <Attribute ID="Reserved" ChannelOffset="2" Wheel="29" />
+    </Include>
+  </Mode>
+  <Macro>
+    <Macro Name="Reset">
+      <Set Channel="Reset:2:100" Delay="500" />
+      <Set Channel="Reset:1:0" Delay="0" />
+    </Macro>
+  </Macro>
+</Fixture>

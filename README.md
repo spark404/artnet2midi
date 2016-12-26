@@ -36,8 +36,12 @@ gamerunner.button_b.playback=11
 
 Building
 --------
-
 `mvn -Ppi4j clean package`
+
+Requires the pi4j library from http://pi4j.com. Install the pi4j-core.jar in the local maven respository.
+
+`mvn install:install-file -Dfile=/opt/pi4j/lib/pi4j-core.jar -DgroupId=org.pi4j \
+    -DartifactId=pi4j-core -Dversion=1.1 -Dpackaging=jar`
 
 
 Running
@@ -45,3 +49,8 @@ Running
 `sudo java -jar artnet2midi-1.0-SNAPSHOT.jar`
 
 Make sure the application.properties file is in the current directory when you start the application. Requires sudo to allow access to the Raspberry GPIO lines.
+
+
+Notes
+-----
+The gameserver has a personality file for the Titan console. It is already loaded, search for _Raspberry Gameserver_ with manufacturer _Hugo_ or load the file in the personality directory.
