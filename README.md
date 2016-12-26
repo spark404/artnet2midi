@@ -33,3 +33,15 @@ gameserver.dmx.address=25
 gamerunner.button_a.playback=7
 gamerunner.button_b.playback=11
 ```
+
+Building
+--------
+
+`mvn -Ppi4j clean package`
+
+
+Running
+-------
+`sudo java -jar artnet2midi-1.0-SNAPSHOT.jar`
+
+Make sure the application.properties file is in the current directory when you start the application. Requires sudo to allow access to the Raspberry GPIO lines.
