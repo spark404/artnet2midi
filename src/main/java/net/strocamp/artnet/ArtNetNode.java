@@ -100,18 +100,11 @@ public class ArtNetNode implements ArtNetNodeMBean {
     @PreDestroy
     public void shutdown() {
         logger.debug("Shutdown requested");
-        if (handlerThread != null && handlerThread.isAlive()) {
-            terminate = true;
-            try {
-                handlerThread.join(5000);
-            } catch (InterruptedException e) {
-                logger.error(("Failed to shutdown handler"));
-            }
-        }
+        stop();
     }
 
     public void start() throws ArtNetException {
-        if (handlerThread != null)  {
+        if (handlerThread != null && handlerThread.isAlive())  {
             throw new ArtNetException("Node already started");
         }
         logger.info("Configuring ArtNetNode with interface:{}, address:{}, network:{}, subnet:{}",
@@ -126,17 +119,18 @@ public class ArtNetNode implements ArtNetNodeMBean {
         };
         handlerThread = new Thread(artNetRunner);
         handlerThread.setName("ArtNetHandler-" + interfaceAddress.toString());
+        handlerThread.setDaemon(true);
         handlerThread.start();
         logger.info("ArtNetNode on " + interfaceAddress.toString() + " started");
     }
 
     public void stop() {
-        if (handlerThread != null) {
+        if (handlerThread != null && handlerThread.isAlive()) {
             logger.info("Stopping ArtNetNode on " + interfaceAddress.toString());
             terminate = true;
             artNetSocket.close();
             try {
-                handlerThread.join();
+                handlerThread.join(5000l);
             } catch (InterruptedException e) {
                 logger.error("Thread was interrupted while waiting for it to stop", e);
             }
@@ -163,8 +157,6 @@ public class ArtNetNode implements ArtNetNodeMBean {
             if (artNetPacket == null) {
                 continue;
             }
-            //logger.info("hex dump: {}", Util.bytesToHex(artNetPacket.getData()));
-
             if (artNetPacket.getOpCode() == ArtNetOpCodes.OpPoll) {
                 logger.info("Poll received from {}", receivePacket.getAddress().toString());
                 datagramPacket = generateArtPollReply(artNetSocket);
@@ -178,7 +170,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
 
             if (artNetPacket.getOpCode() == ArtNetOpCodes.OpDmx) {
                 ArtDmx dmxPacket = (ArtDmx) artNetPacket;
-                logger.info("DMX data received for {}:{}:{}, {} bytes",
+                logger.debug("DMX data received for {}:{}:{}, {} bytes",
                         dmxPacket.getNetwork(), dmxPacket.getSubnet(), dmxPacket.getUniverse(),
                         dmxPacket.getDmxLength());
                 if (dmxPacket.getNetwork() == network && dmxPacket.getSubnet() == subnetwork) {
