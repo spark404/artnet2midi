@@ -40,6 +40,7 @@ public class ArtNetPacketParser {
             throw new ArtNetException(e);
         }
 
+        artNetPacket.setLength(data.length);
         return artNetPacket.parse(data);
     }
 

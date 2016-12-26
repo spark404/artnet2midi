@@ -228,7 +228,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
         return artPollReply;
     }
 
-    private void handleDmxData(ArtDmx dmxPacket) {
+    void handleDmxData(ArtDmx dmxPacket) {
         for (DmxHandler handlerEntry : handlers) {
             if (handlerEntry.getUniverse() != dmxPacket.getUniverse()) {
                 return;
@@ -237,8 +237,9 @@ public class ArtNetNode implements ArtNetNodeMBean {
             int startPosition = handlerEntry.getAddress();
             int length = handlerEntry.getWidth();
 
-            // TODO length checking
-            byte[] dataPart = Arrays.copyOfRange(dmxPacket.getDmxData(), startPosition, startPosition + length);
+            // DMX addresses are from 1 to 512, offset by -1 for array indices
+            int from = startPosition - 1;
+            byte[] dataPart = Arrays.copyOfRange(dmxPacket.getDmxData(), from, from + length);
             handlerEntry.onDmx(dataPart);
         }
     }
