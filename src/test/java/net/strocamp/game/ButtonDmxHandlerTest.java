@@ -9,13 +9,12 @@ import static org.mockito.Mockito.verify;
 public class ButtonDmxHandlerTest {
     @Test
     public void onDmx() throws Exception {
-        ButtonDmxHandler dmxHandler = new ButtonDmxHandler("Test", 0, 0);
+        ButtonDmxHandler dmxHandler = new ButtonDmxHandler("Test", 0, 1);
         GameRunner gameRunner = mock(GameRunnerImpl.class);
         dmxHandler.setGameRunner(gameRunner);
 
         dmxHandler.onDmx(new byte[] { (byte)0xff, 0x0 });
-        dmxHandler.onDmx(new byte[] { (byte)0xff, 0x0 });
-        dmxHandler.onDmx(new byte[] { (byte)0x44, 0x0 });
+        dmxHandler.onDmx(new byte[] { (byte)0x0, 0x0 });
 
         verify(gameRunner, times(1)).reset();
     }
