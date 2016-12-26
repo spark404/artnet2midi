@@ -2,6 +2,7 @@ package net.strocamp.artnet;
 
 import net.strocamp.artnet.packets.ArtDmx;
 import net.strocamp.artnet.packets.ArtNetPacket;
+import net.strocamp.artnet.packets.ArtPoll;
 import net.strocamp.artnet.packets.ArtPollReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,10 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,7 +132,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
         if (handlerThread != null && handlerThread.isAlive()) {
             logger.info("Stopping ArtNetNode on " + interfaceAddress.toString());
             terminate = true;
-            artNetSocket.close();
+
             try {
                 handlerThread.join(5000l);
             } catch (InterruptedException e) {
@@ -141,26 +145,27 @@ public class ArtNetNode implements ArtNetNodeMBean {
     }
 
     private void handler() throws Exception {
-        artNetSocket = new DatagramSocket(6454);//, interfaceAddress.getAddress());
-        artNetSocket.setBroadcast(true);
-        byte[] receiveData = new byte[1024];
+        DatagramChannel server = null;
+        server = DatagramChannel.open();
+        InetSocketAddress sAddr = new InetSocketAddress("0.0.0.0", 6454);
+        server.bind(sAddr);
 
         // According to the spec, start off with ArtPollReply broadcast
-        DatagramPacket datagramPacket = generateArtPollReply(artNetSocket);
-        artNetSocket.send(datagramPacket);
+        sendArtPollReply(server);
 
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
         while (!terminate) {
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            artNetSocket.receive(receivePacket);
-            ArtNetPacket artNetPacket = ArtNetPacketParser.parse(receiveData);
+
+            SocketAddress source = server.receive(buffer);
+            ArtNetPacket artNetPacket = ArtNetPacketParser.parse(buffer.array());
 
             if (artNetPacket == null) {
                 continue;
             }
+
             if (artNetPacket.getOpCode() == ArtNetOpCodes.OpPoll) {
-                logger.info("Poll received from {}", receivePacket.getAddress().toString());
-                datagramPacket = generateArtPollReply(artNetSocket);
-                artNetSocket.send(datagramPacket);
+                logger.info("Poll received from {}", source.toString());
+                sendArtPollReply(server);
             }
 
             if (artNetPacket.getOpCode() == ArtNetOpCodes.OpPollReply) {
@@ -184,6 +189,12 @@ public class ArtNetNode implements ArtNetNodeMBean {
         }
     }
 
+    private void sendArtPollReply(DatagramChannel server) throws ArtNetException, IOException {
+        ArtPollReply artPollReply = generateArtPollReply();
+        ByteBuffer reply = ByteBuffer.wrap(artPollReply.getData());
+        server.send(reply, new InetSocketAddress(interfaceAddress.getBroadcast(), 0x1936));
+    }
+
     private void handleArtPollReply(ArtPollReply artPollReply) {
         logger.info("Poll reply seen from {}", artPollReply.getShortName());
 
@@ -200,14 +211,14 @@ public class ArtNetNode implements ArtNetNodeMBean {
         new ArtNetNodeInfo(artPollReply.getShortName(), lastSeen);
     }
 
-    private DatagramPacket generateArtPollReply(DatagramSocket artNetSocket) throws ArtNetException, SocketException {
+    private ArtPollReply generateArtPollReply() throws ArtNetException, SocketException {
         ArtPollReply artPollReply = (ArtPollReply) ArtNetPacketParser.generatePacketByOpCode(ArtNetOpCodes.OpPollReply);
         artPollReply
                 .setNetSwitch(network, subnetwork)
                 .setIpAddress(interfaceAddress.getAddress().getAddress())
                 .setMacAddress(networkInterface.getHardwareAddress())
                 .setUniverseForInputPort(1, universe);
-        return new DatagramPacket(artPollReply.getData(), artPollReply.getLength(), interfaceAddress.getBroadcast(), 0x1936);
+        return artPollReply;
     }
 
     private void handleDmxData(ArtDmx dmxPacket) {
