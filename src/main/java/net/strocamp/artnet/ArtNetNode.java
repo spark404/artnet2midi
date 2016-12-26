@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ArtNetNode implements ArtNetNodeMBean {
     private final static Logger logger = LoggerFactory.getLogger(ArtNetNode.class);
+    public static final int DMX_PORT = 6454;
 
     private List<DmxHandler> handlers;
     private Thread handlerThread;
@@ -147,7 +148,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
     private void handler() throws Exception {
         DatagramChannel server = null;
         server = DatagramChannel.open();
-        InetSocketAddress sAddr = new InetSocketAddress("0.0.0.0", 6454);
+        InetSocketAddress sAddr = new InetSocketAddress("0.0.0.0", DMX_PORT);
         server.bind(sAddr);
 
         // According to the spec, start off with ArtPollReply broadcast
@@ -160,6 +161,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
             ArtNetPacket artNetPacket = ArtNetPacketParser.parse(buffer.array());
 
             if (artNetPacket == null) {
+                logger.warn("Received something, but i don't recognize it");
                 continue;
             }
 
@@ -182,17 +184,21 @@ public class ArtNetNode implements ArtNetNodeMBean {
                     handleDmxData(dmxPacket);
                 }
             }
+
+            buffer.clear();
         }
 
-        if (!artNetSocket.isClosed()) {
-            artNetSocket.close();
+        if (server.isOpen()) {
+            server.close();
         }
     }
 
     private void sendArtPollReply(DatagramChannel server) throws ArtNetException, IOException {
+        DatagramChannel replyChannel = DatagramChannel.open();
         ArtPollReply artPollReply = generateArtPollReply();
         ByteBuffer reply = ByteBuffer.wrap(artPollReply.getData());
-        server.send(reply, new InetSocketAddress(interfaceAddress.getBroadcast(), 0x1936));
+        replyChannel.send(reply, new InetSocketAddress(interfaceAddress.getBroadcast(), DMX_PORT));
+        replyChannel.close();
     }
 
     private void handleArtPollReply(ArtPollReply artPollReply) {

@@ -29,8 +29,9 @@ public class ButtonDmxHandler extends DmxHandler {
         int previousValue = resetValue.getAndSet(currentValue);
 
          if (previousValue < 200 && currentValue >=200) {
-            // Trigger the reset on the rising edge
-            gameRunner.reset();
+             // Trigger the reset on the rising edge
+             logger.info("RESET received over DMX");
+             gameRunner.reset();
         }
     }
 
