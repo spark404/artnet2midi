@@ -177,7 +177,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
 
             if (artNetPacket.getOpCode() == ArtNetOpCodes.OpDmx) {
                 ArtDmx dmxPacket = (ArtDmx) artNetPacket;
-                logger.debug("DMX data received for {}:{}:{}, {} bytes",
+                logger.trace("DMX data received for {}:{}:{}, {} bytes",
                         dmxPacket.getNetwork(), dmxPacket.getSubnet(), dmxPacket.getUniverse(),
                         dmxPacket.getDmxLength());
                 if (dmxPacket.getNetwork() == network && dmxPacket.getSubnet() == subnetwork) {

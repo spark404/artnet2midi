@@ -64,6 +64,7 @@ public class GameRunnerImpl implements GameRunner {
     @Override
     @Async
     public void reset() {
+        logger.info("Game: RESET");
         buttonPressed.set(false);
         piInterface.ledOff();
         try {
@@ -79,9 +80,10 @@ public class GameRunnerImpl implements GameRunner {
     @Override
     @Async
     public void buttonPress(Button button) {
+        logger.info("Game: Button {}", button.name());
         boolean result = buttonPressed.compareAndSet(false, true);
         if (result) {
-            // You are the one
+            logger.info("Game: Button {} Won!", button.name());
             piInterface.ledOn();
             triggerCue(button);
         }
