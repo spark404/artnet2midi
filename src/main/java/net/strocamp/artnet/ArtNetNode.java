@@ -195,6 +195,7 @@ public class ArtNetNode implements ArtNetNodeMBean {
 
     private void sendArtPollReply(DatagramChannel server) throws ArtNetException, IOException {
         DatagramChannel replyChannel = DatagramChannel.open();
+        replyChannel.socket().setBroadcast(true);
         ArtPollReply artPollReply = generateArtPollReply();
         ByteBuffer reply = ByteBuffer.wrap(artPollReply.getData());
         replyChannel.send(reply, new InetSocketAddress(interfaceAddress.getBroadcast(), DMX_PORT));
