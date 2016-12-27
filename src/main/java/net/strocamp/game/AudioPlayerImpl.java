@@ -31,11 +31,15 @@ public class AudioPlayerImpl implements AudioPlayer {
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
-        logger.debug("Playing clip with length {}ms", clip.getMicrosecondLength());
+
+        logger.debug("Playing clip with length {}ms", clip.getMicrosecondLength()/1000);
         clip.start();
+
+        Thread.sleep(clip.getMicrosecondLength()/1000); // Sleep for the clip length
         while(clip.isRunning()) {
             Thread.sleep(100);
         }
+
         clip.flush();
         clip.close();
     }
