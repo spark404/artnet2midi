@@ -1,6 +1,8 @@
 ArtNet2Midi
 ===========
 
+[![Build Status](https://travis-ci.org/spark404/artnet2midi.svg?branch=master)](https://travis-ci.org/spark404/artnet2midi)
+
 Familiyday special
 
 application.properties holds all the relevant configuration
