@@ -1,5 +1,7 @@
 package net.strocamp.game;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -13,12 +15,14 @@ import java.io.FileNotFoundException;
 
 @Component
 public class AudioPlayerImpl implements AudioPlayer {
+    private final static Logger logger = LoggerFactory.getLogger(AudioPlayerImpl.class);
 
     private File audioFile;
 
     @Value("${audioplayer.wav.filename:${classpath:roffel.wav}}")
     public void setAudioFile(String audioFileLocation) throws FileNotFoundException {
         audioFile = ResourceUtils.getFile(audioFileLocation);
+        logger.info("AudioPlayer configured to play : {}", audioFile.getAbsolutePath());
     }
 
     @Override
@@ -27,6 +31,7 @@ public class AudioPlayerImpl implements AudioPlayer {
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioFile);
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
+        logger.debug("Playing clip with length {}ms", clip.getMicrosecondLength());
         clip.start();
         while(clip.isRunning()) {
             Thread.sleep(100);
