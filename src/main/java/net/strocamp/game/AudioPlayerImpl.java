@@ -22,6 +22,10 @@ public class AudioPlayerImpl implements AudioPlayer {
     @Value("${audioplayer.wav.filename:${classpath:roffel.wav}}")
     public void setAudioFile(String audioFileLocation) throws FileNotFoundException {
         audioFile = ResourceUtils.getFile(audioFileLocation);
+        if (!audioFile.canRead()) {
+            throw new FileNotFoundException("Unable to access file " + audioFile.getAbsolutePath());
+        }
+
         logger.info("AudioPlayer configured to play : {}", audioFile.getAbsolutePath());
     }
 
@@ -32,7 +36,7 @@ public class AudioPlayerImpl implements AudioPlayer {
         Clip clip = AudioSystem.getClip();
         clip.open(audioIn);
 
-        logger.debug("Playing clip with length {}ms", clip.getMicrosecondLength()/1000);
+        logger.debug("Playing {} with length {}ms", audioFile.getAbsoluteFile(), clip.getMicrosecondLength()/1000);
         clip.start();
 
         Thread.sleep(clip.getMicrosecondLength()/1000); // Sleep for the clip length
