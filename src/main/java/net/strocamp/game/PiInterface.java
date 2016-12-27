@@ -74,7 +74,7 @@ public class PiInterface {
         aButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.OFF);
         bButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_03, PinPullResistance.OFF);
 
-        statusLed = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_14, PinState.LOW);
+        statusLed = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, PinState.LOW);
     }
 
     @PreDestroy
