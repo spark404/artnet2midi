@@ -19,6 +19,7 @@ public class GameRunnerImpl implements GameRunner {
 
     private PiInterface piInterface;
     private TitanDispatcher titanDispatcher;
+    private AudioPlayer audioPlayer;
 
     private final AtomicBoolean buttonPressed = new AtomicBoolean(false);
 
@@ -92,7 +93,9 @@ public class GameRunnerImpl implements GameRunner {
     private void triggerCue(Button button) {
         try {
             activeButton = button;
+            // The next two calls should be fired async
             titanDispatcher.firePlayback(playbacks.get(button), 1, true);
+            audioPlayer.play();
         } catch (Exception e) {
             logger.error("Failed to fire trigger on the Titan", e);
         }
