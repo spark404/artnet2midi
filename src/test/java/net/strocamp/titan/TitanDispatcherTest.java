@@ -9,11 +9,11 @@ import static org.junit.Assert.*;
 @Ignore
 public class TitanDispatcherTest {
 
-    private TitanDispatcher titanDispatcher;
+    private TitanDispatcherImpl titanDispatcher;
 
     @Before
     public void setUp() throws Exception {
-        titanDispatcher = new TitanDispatcher();
+        titanDispatcher = new TitanDispatcherImpl();
         titanDispatcher.setBaseUrl("http://192.168.168.107:4430");
     }
 

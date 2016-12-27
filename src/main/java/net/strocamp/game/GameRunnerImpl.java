@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class GameRunnerImpl implements GameRunner {
-    private final static Logger logger = LoggerFactory.getLogger(GameRunnerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(GameRunnerImpl.class);
 
     private PiInterface piInterface;
     private TitanDispatcher titanDispatcher;
@@ -39,6 +39,11 @@ public class GameRunnerImpl implements GameRunner {
         this.titanDispatcher = titanDispatcher;
     }
 
+    @Autowired
+    public void setAudioPlayer(AudioPlayer audioPlayer) {
+        this.audioPlayer = audioPlayer;
+    }
+
     @Value("${gamerunner.button_a.playback}")
     public void setButtonAPlayback(int buttonAPlayback) {
         this.buttonAPlayback = buttonAPlayback;
@@ -60,6 +65,10 @@ public class GameRunnerImpl implements GameRunner {
         playbacks.put(Button.BUTTON_B, buttonBPlayback);
 
         logger.info("Raspberry GPIO Initialized");
+
+        String titanVersion = titanDispatcher.getVersion();
+        String titanShowName = titanDispatcher.getShowName();
+        logger.info("Titan {} connection initialized, active show {}", titanVersion, titanShowName);
     }
 
     @Override
