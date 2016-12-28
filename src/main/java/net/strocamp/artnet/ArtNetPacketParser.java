@@ -4,11 +4,14 @@ import net.strocamp.artnet.packets.ArtDmx;
 import net.strocamp.artnet.packets.ArtNetPacket;
 import net.strocamp.artnet.packets.ArtPoll;
 import net.strocamp.artnet.packets.ArtPollReply;
-import net.strocamp.core.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public class ArtNetPacketParser {
+    private final static Logger logger = LoggerFactory.getLogger(ArtNetPacketParser.class);
+
     private ArtNetPacketParser() {}
 
     public static ArtNetPacket generatePacketByOpCode(ArtNetOpCodes opCode) throws ArtNetException {
@@ -32,6 +35,11 @@ public class ArtNetPacketParser {
 
         int opCodeValue = (packetData[9] << 8) + packetData[8];
         ArtNetOpCodes opCode = ArtNetOpCodes.fromInt(opCodeValue);
+        if (opCode == null) {
+            final String errorMsg = String.format("Unknown opCode %x", opCodeValue);
+            logger.error(errorMsg);
+            throw new ArtNetException(errorMsg);
+        }
 
         ArtNetPacket artNetPacket;
         try {
@@ -57,6 +65,7 @@ public class ArtNetPacketParser {
                 clazz = ArtDmx.class;
                 break;
             default:
+                logger.warn("Unknown OpCode");
                 clazz = null;
         }
         return clazz;

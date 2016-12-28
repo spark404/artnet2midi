@@ -11,7 +11,7 @@
   <groupId>net.strocamp</groupId>
   <artifactId>artnet2midi</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
 
   <name>artnet2midi</name>
   <url>http://maven.apache.org</url>

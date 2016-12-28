@@ -59,12 +59,12 @@ public class GameRunnerImpl implements GameRunner {
         piInterface.onAButton(() -> buttonPress(Button.BUTTON_A));
         piInterface.onBButton(() -> buttonPress(Button.BUTTON_B));
         piInterface.onResetButton(this::reset);
+        piInterface.blink();
+        logger.info("Raspberry GPIO Initialized");
 
         this.playbacks = new HashMap<>();
         playbacks.put(Button.BUTTON_A, buttonAPlayback);
         playbacks.put(Button.BUTTON_B, buttonBPlayback);
-
-        logger.info("Raspberry GPIO Initialized");
 
         String titanVersion = titanDispatcher.getVersion();
         String titanShowName = titanDispatcher.getShowName();

@@ -2,7 +2,6 @@ package net.strocamp.artnet;
 
 import net.strocamp.artnet.packets.ArtDmx;
 import net.strocamp.artnet.packets.ArtNetPacket;
-import net.strocamp.artnet.packets.ArtPoll;
 import net.strocamp.artnet.packets.ArtPollReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +13,25 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.net.*;
+import java.net.DatagramSocket;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -158,7 +171,12 @@ public class ArtNetNode implements ArtNetNodeMBean {
         while (!terminate) {
 
             SocketAddress source = server.receive(buffer);
-            ArtNetPacket artNetPacket = ArtNetPacketParser.parse(buffer.array());
+            ArtNetPacket artNetPacket = null;
+            try {
+                artNetPacket = ArtNetPacketParser.parse(buffer.array());
+            } catch (ArtNetException e) {
+                logger.error("Ignoring ArtNetException", e);
+            }
 
             if (artNetPacket == null) {
                 logger.warn("Received something, but i don't recognize it");
